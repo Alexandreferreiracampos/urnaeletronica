@@ -482,31 +482,34 @@
 
       <div class="teclado">
         <div class="teclado--linha">
-          <div class="teclado--botao" id="btn-1">1</div>
-          <div class="teclado--botao" id="btn-2">2</div>
-          <div class="teclado--botao" id="btn-3">3</div>
+          <div class="teclado--botao" onclick="clicou('1')">1</div>
+          <div class="teclado--botao" onclick="clicou('2')">2</div>
+          <div class="teclado--botao" onclick="clicou('3')">3</div>
         </div>
         <div class="teclado--linha">
-          <div class="teclado--botao" id="btn-4">4</div>
-          <div class="teclado--botao" id="btn-5">5</div>
-          <div class="teclado--botao" id="btn-6">6</div>
+          <div class="teclado--botao" onclick="clicou('4')">4</div>
+          <div class="teclado--botao" onclick="clicou('5')">5</div>
+          <div class="teclado--botao" onclick="clicou('6')">6</div>
         </div>
         <div class="teclado--linha">
-          <div class="teclado--botao" id="btn-7">7</div>
-          <div class="teclado--botao" id="btn-8">8</div>
-          <div class="teclado--botao" id="btn-9">9</div>
+          <div class="teclado--botao" onclick="clicou('7')">7</div>
+          <div class="teclado--botao" onclick="clicou('8')">8</div>
+          <div class="teclado--botao" onclick="clicou('9')">9</div>
         </div>
         <div class="teclado--linha">
-          <div class="teclado--botao" id="btn-0">0</div>
+          <div class="teclado--botao" onclick="clicou('0')">0</div>
         </div>
         <div class="teclado--linha">
-          <div class="teclado--botao especial btn-branco" id="btn-branco">
+          <div class="teclado--botao especial btn-branco" onclick="branco()">
             BRANCO
           </div>
-          <div class="teclado--botao especial btn-corrige" id="btn-corrige">
+          <div class="teclado--botao especial btn-corrige" onclick="corrige()">
             CORRIGE
           </div>
-          <div class="teclado--botao especial btn-confirma" id="btn-confirma">
+          <div
+            class="teclado--botao especial btn-confirma"
+            onclick="confirma()"
+          >
             CONFIRMA
           </div>
         </div>
@@ -531,10 +534,10 @@
       </div>
       <div id="resultado-votos"></div>
       <div style="text-align: center; margin-top: 20px">
-        <button class="btn-imprimir" id="btn-imprimir">
+        <button class="btn-imprimir" onclick="imprimirResultado()">
           Imprimir Resultado
         </button>
-        <button class="btn-fechar-apuracao" id="btn-fechar-apuracao">
+        <button class="btn-fechar-apuracao" onclick="fecharApuracao()">
           Fechar
         </button>
       </div>
@@ -566,29 +569,34 @@
         </select>
 
         <label>Foto do Candidato</label>
-        <input type="file" id="cad-foto-file" accept="image/*" />
+        <input
+          type="file"
+          id="cad-foto-file"
+          accept="image/*"
+          onchange="previewImage(this)"
+        />
         <div
           id="cad-foto-preview"
           class="preview-foto"
           style="display: none"
         ></div>
 
-        <button class="btn-salvar" id="btn-salvar-candidato">
+        <button class="btn-salvar" onclick="salvarCandidato()">
           Salvar Candidato
         </button>
       </div>
       <div id="lista-candidatos"></div>
       <div style="text-align: center; margin-top: 20px">
-        <button class="btn-fechar-apuracao" id="btn-fechar-cadastro">
+        <button class="btn-fechar-apuracao" onclick="fecharCadastro()">
           Fechar
         </button>
       </div>
     </div>
 
     <div class="controles-admin">
-      <button class="btn-admin" id="btn-mostrar-apuracao">Apuração</button>
-      <button class="btn-admin" id="btn-mostrar-cadastro">Candidatos</button>
-      <button class="btn-admin" id="btn-limpar-votos">Zerar Urna</button>
+      <button class="btn-admin" onclick="mostrarApuracao()">Apuração</button>
+      <button class="btn-admin" onclick="mostrarCadastro()">Candidatos</button>
+      <button class="btn-admin" onclick="limparVotos()">Zerar Urna</button>
     </div>
 
     <audio
@@ -597,37 +605,46 @@
     ></audio>
     <audio id="audio-fim" src="confirma-urna.mp3"></audio>
 
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-      import {
-        getDatabase,
-        ref,
-        set,
-        push,
-        onValue,
-        remove,
-        get,
-        child,
-      } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+    <script>
+      // Configuração Inicial dos Candidatos
+      const candidatosIniciais = [
+        {
+          numero: "10",
+          nome: "Mel",
+          turma: "5⁰ ano A",
+          periodo: "Manhã",
+          foto: "img/10.jpeg",
+        },
+        {
+          numero: "11",
+          nome: "Isabella",
+          turma: "6⁰ ano B",
+          periodo: "Manhã",
+          foto: "img/11.jpeg",
+        },
+        {
+          numero: "12",
+          nome: "João Lucas",
+          turma: "5⁰ ano C",
+          periodo: "Tarde",
+          foto: "img/12.jpeg",
+        },
+        {
+          numero: "13",
+          nome: "Ana Laura",
+          turma: "5⁰ ano D",
+          periodo: "Tarde",
+          foto: "img/13.jpeg",
+        },
+      ];
 
-      // Your web app's Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyDDkFGZIPBxwY9TqZh9Z7afNlv2HHW5-IA",
-        authDomain: "urna-ed3ce.firebaseapp.com",
-        databaseURL: "https://urna-ed3ce-default-rtdb.firebaseio.com",
-        projectId: "urna-ed3ce",
-        storageBucket: "urna-ed3ce.firebasestorage.app",
-        messagingSenderId: "145878620539",
-        appId: "1:145878620539:web:c4ccf65f0038a91fa245de",
-        measurementId: "G-9GD1X9SDPL",
-      };
+      // Carregar candidatos do localStorage ou usar os iniciais
+      let candidatos = JSON.parse(localStorage.getItem("candidatos_urna"));
+      if (!candidatos) {
+        candidatos = candidatosIniciais;
+        localStorage.setItem("candidatos_urna", JSON.stringify(candidatos));
+      }
 
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const database = getDatabase(app);
-
-      let candidatos = [];
       let etapaAtiva = true;
       let numeroDigitado = "";
       let votoEmBranco = false;
@@ -640,17 +657,6 @@
       const elFoto = document.getElementById("foto");
       const elRodape = document.getElementById("rodape");
       const elTelaInfo = document.getElementById("tela-info");
-
-      // Sincronizar Candidatos em Tempo Real
-      onValue(ref(database, "candidatos"), (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          candidatos = Object.values(data);
-        } else {
-          candidatos = [];
-        }
-        atualizarListaCandidatos();
-      });
 
       function iniciarEtapa() {
         etapaAtiva = true;
@@ -761,61 +767,60 @@
       }
 
       function salvarVoto(voto) {
-        push(ref(database, "votos"), voto);
+        let votos = JSON.parse(localStorage.getItem("votos_urna")) || [];
+        votos.push(voto);
+        localStorage.setItem("votos_urna", JSON.stringify(votos));
       }
 
       function mostrarApuracao() {
-        get(ref(database, "votos")).then((snapshot) => {
-          const data = snapshot.val();
-          const votos = data ? Object.values(data) : [];
-          const contagem = {};
+        const votos = JSON.parse(localStorage.getItem("votos_urna")) || [];
+        const contagem = {};
 
-          candidatos.forEach((c) => (contagem[c.numero] = 0));
-          contagem["BRANCO"] = 0;
-          contagem["NULO"] = 0;
+        candidatos.forEach((c) => (contagem[c.numero] = 0));
+        contagem["BRANCO"] = 0;
+        contagem["NULO"] = 0;
 
-          votos.forEach((v) => {
-            if (contagem[v] !== undefined) contagem[v]++;
-            else contagem["NULO"]++;
-          });
-
-          const candidatosOrdenados = [...candidatos].sort((a, b) => {
-            return (contagem[b.numero] || 0) - (contagem[a.numero] || 0);
-          });
-
-          let maxVotos = 0;
-          if (candidatosOrdenados.length > 0) {
-            maxVotos = contagem[candidatosOrdenados[0].numero] || 0;
-          }
-
-          let vencedorNumero = "";
-          if (maxVotos > 0) {
-            const empate = candidatosOrdenados.filter(
-              (c) => contagem[c.numero] === maxVotos,
-            );
-            vencedorNumero =
-              empate.length === 1 ? candidatosOrdenados[0].numero : "EMPATE";
-          }
-
-          let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
-          html +=
-            '<table class="tabela-votos"><tr><th>Candidato / Aluno</th><th>Votos</th></tr>';
-
-          candidatosOrdenados.forEach((c) => {
-            const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
-            html += `<tr class="${isVencedor ? "vencedor" : ""}">
-                      <td>${c.numero} - ${c.nome} (${c.turma}) ${isVencedor ? "🏆" : ""}</td>
-                      <td>${contagem[c.numero] || 0}</td>
-                  </tr>`;
-          });
-
-          html += `<tr><td>Votos em BRANCO</td><td>${contagem["BRANCO"]}</td></tr>`;
-          html += `<tr><td>Votos NULOS</td><td>${contagem["NULO"]}</td></tr>`;
-          html += "</table>";
-
-          document.getElementById("resultado-votos").innerHTML = html;
-          document.getElementById("painel-apuracao").style.display = "block";
+        votos.forEach((v) => {
+          if (contagem[v] !== undefined) contagem[v]++;
+          else contagem["NULO"]++;
         });
+
+        const candidatosOrdenados = [...candidatos].sort((a, b) => {
+          return contagem[b.numero] - contagem[a.numero];
+        });
+
+        let maxVotos = 0;
+        if (candidatosOrdenados.length > 0) {
+          maxVotos = contagem[candidatosOrdenados[0].numero];
+        }
+
+        let vencedorNumero = "";
+        if (maxVotos > 0) {
+          const empate = candidatosOrdenados.filter(
+            (c) => contagem[c.numero] === maxVotos,
+          );
+          vencedorNumero =
+            empate.length === 1 ? candidatosOrdenados[0].numero : "EMPATE";
+        }
+
+        let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
+        html +=
+          '<table class="tabela-votos"><tr><th>Candidato / Aluno</th><th>Votos</th></tr>';
+
+        candidatosOrdenados.forEach((c) => {
+          const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
+          html += `<tr class="${isVencedor ? "vencedor" : ""}">
+                    <td>${c.numero} - ${c.nome} (${c.turma}) ${isVencedor ? "🏆" : ""}</td>
+                    <td>${contagem[c.numero]}</td>
+                </tr>`;
+        });
+
+        html += `<tr><td>Votos em BRANCO</td><td>${contagem["BRANCO"]}</td></tr>`;
+        html += `<tr><td>Votos NULOS</td><td>${contagem["NULO"]}</td></tr>`;
+        html += "</table>";
+
+        document.getElementById("resultado-votos").innerHTML = html;
+        document.getElementById("painel-apuracao").style.display = "block";
       }
 
       function fecharApuracao() {
@@ -838,16 +843,16 @@
 
         if (
           confirm(
-            "ATENÇÃO: Deseja realmente APAGAR TODOS os votos do Firebase?",
+            "ATENÇÃO: Deseja realmente APAGAR TODOS os votos e zerar a urna?",
           )
         ) {
-          remove(ref(database, "votos")).then(() => {
-            alert("Urna zerada com sucesso!");
-            location.reload();
-          });
+          localStorage.removeItem("votos_urna");
+          alert("Urna zerada com sucesso!");
+          location.reload();
         }
       }
 
+      // Funções de Cadastro
       function mostrarCadastro() {
         const senha = prompt("Digite a senha para acessar o cadastro:");
         if (senha !== "emeb") {
@@ -855,6 +860,7 @@
           return;
         }
         sugerirProximoNumero();
+        atualizarListaCandidatos();
         document.getElementById("painel-cadastro").style.display = "block";
       }
 
@@ -867,6 +873,7 @@
           document.getElementById("cad-numero").value = "10";
           return;
         }
+        // Pega todos os números, converte para inteiro, acha o maior e soma 1
         const numeros = candidatos
           .map((c) => parseInt(c.numero))
           .filter((n) => !isNaN(n));
@@ -877,8 +884,7 @@
           .padStart(2, "0");
       }
 
-      function previewImage(event) {
-        const input = event.target;
+      function previewImage(input) {
         if (input.files && input.files[0]) {
           const reader = new FileReader();
           reader.onload = function (e) {
@@ -902,26 +908,33 @@
           return;
         }
 
+        if (numero.length !== 2) {
+          alert("O número deve ter 2 dígitos!");
+          return;
+        }
+
         const index = candidatos.findIndex((c) => c.numero === numero);
+
+        // Se não subiu foto nova e está editando, mantém a foto antiga
         let fotoFinal = fotoBase64;
         if (!fotoFinal && index >= 0) {
           fotoFinal = candidatos[index].foto;
         } else if (!fotoFinal) {
-          fotoFinal = "img/default.png";
+          fotoFinal = "img/default.png"; // Foto padrão se for novo e sem foto
         }
 
         const novoCandidato = { numero, nome, turma, periodo, foto: fotoFinal };
 
-        set(ref(database, "candidatos/" + numero), novoCandidato)
-          .then(() => {
-            alert("Candidato salvo com sucesso!");
-            limparFormulario();
-            sugerirProximoNumero();
-          })
-          .catch((error) => alert("Erro ao salvar: " + error.message));
-      }
+        if (index >= 0) {
+          candidatos[index] = novoCandidato;
+        } else {
+          candidatos.push(novoCandidato);
+        }
 
-      function limparFormulario() {
+        localStorage.setItem("candidatos_urna", JSON.stringify(candidatos));
+        alert("Candidato salvo com sucesso!");
+
+        // Limpar campos
         document.getElementById("cad-numero").value = "";
         document.getElementById("cad-nome").value = "";
         document.getElementById("cad-turma").value = "";
@@ -929,14 +942,17 @@
         document.getElementById("cad-foto-file").value = "";
         document.getElementById("cad-foto-preview").style.display = "none";
         fotoBase64 = "";
+
+        sugerirProximoNumero();
+        atualizarListaCandidatos();
       }
 
       function excluirCandidato(numero) {
         if (confirm(`Deseja realmente excluir o candidato número ${numero}?`)) {
-          remove(ref(database, "candidatos/" + numero)).then(() => {
-            alert("Candidato excluído!");
-            sugerirProximoNumero();
-          });
+          candidatos = candidatos.filter((c) => c.numero !== numero);
+          localStorage.setItem("candidatos_urna", JSON.stringify(candidatos));
+          atualizarListaCandidatos();
+          sugerirProximoNumero();
         }
       }
 
@@ -951,7 +967,9 @@
           const preview = document.getElementById("cad-foto-preview");
           preview.style.backgroundImage = `url(${c.foto})`;
           preview.style.display = "block";
-          fotoBase64 = "";
+          fotoBase64 = ""; // Reseta para não sobrescrever a menos que escolha nova
+
+          // Rola para o topo do formulário
           document.getElementById("painel-cadastro").scrollTop = 0;
         }
       }
@@ -965,52 +983,14 @@
             <td>${c.nome}</td>
             <td>${c.turma}</td>
             <td>
-              <button class="btn-editar-candidato" style="opacity:1; background:#1976d2; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;" data-numero="${c.numero}">Editar</button>
-              <button class="btn-excluir-candidato" style="background:#d32f2f; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;" data-numero="${c.numero}">Excluir</button>
+              <button class="btn-admin" style="opacity:1; background:#1976d2; padding:5px;" onclick="editarCandidato('${c.numero}')">Editar</button>
+              <button class="btn-excluir" onclick="excluirCandidato('${c.numero}')">Excluir</button>
             </td>
           </tr>`;
         });
         html += "</table>";
         document.getElementById("lista-candidatos").innerHTML = html;
-
-        // Adicionar eventos aos botões da lista
-        document.querySelectorAll(".btn-editar-candidato").forEach((btn) => {
-          btn.onclick = () => editarCandidato(btn.getAttribute("data-numero"));
-        });
-        document.querySelectorAll(".btn-excluir-candidato").forEach((btn) => {
-          btn.onclick = () => excluirCandidato(btn.getAttribute("data-numero"));
-        });
       }
-
-      // Atribuir eventos aos botões fixos
-      document.getElementById("btn-1").onclick = () => clicou("1");
-      document.getElementById("btn-2").onclick = () => clicou("2");
-      document.getElementById("btn-3").onclick = () => clicou("3");
-      document.getElementById("btn-4").onclick = () => clicou("4");
-      document.getElementById("btn-5").onclick = () => clicou("5");
-      document.getElementById("btn-6").onclick = () => clicou("6");
-      document.getElementById("btn-7").onclick = () => clicou("7");
-      document.getElementById("btn-8").onclick = () => clicou("8");
-      document.getElementById("btn-9").onclick = () => clicou("9");
-      document.getElementById("btn-0").onclick = () => clicou("0");
-      document.getElementById("btn-branco").onclick = () => branco();
-      document.getElementById("btn-corrige").onclick = () => corrige();
-      document.getElementById("btn-confirma").onclick = () => confirma();
-      document.getElementById("btn-imprimir").onclick = () =>
-        imprimirResultado();
-      document.getElementById("btn-fechar-apuracao").onclick = () =>
-        fecharApuracao();
-      document.getElementById("btn-fechar-cadastro").onclick = () =>
-        fecharCadastro();
-      document.getElementById("btn-salvar-candidato").onclick = () =>
-        salvarCandidato();
-      document.getElementById("btn-mostrar-apuracao").onclick = () =>
-        mostrarApuracao();
-      document.getElementById("btn-mostrar-cadastro").onclick = () =>
-        mostrarCadastro();
-      document.getElementById("btn-limpar-votos").onclick = () => limparVotos();
-      document.getElementById("cad-foto-file").onchange = (e) =>
-        previewImage(e);
 
       iniciarEtapa();
     </script>
