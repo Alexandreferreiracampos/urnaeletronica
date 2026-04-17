@@ -413,10 +413,17 @@
 
       /* Estilos para Impressão */
       @media print {
+        @page {
+          margin: 1cm;
+          size: auto;
+        }
         body {
           background-color: white !important;
           margin: 0;
           padding: 0;
+          height: auto !important;
+          overflow: visible !important;
+          display: block !important;
         }
         body > *:not(#painel-apuracao) {
           display: none !important;
@@ -430,9 +437,11 @@
           box-shadow: none !important;
           border: none !important;
           margin: 0 !important;
-          padding: 20px !important;
+          padding: 0 !important;
           visibility: visible !important;
           background: white !important;
+          overflow: visible !important;
+          max-height: none !important;
         }
         #painel-apuracao * {
           visibility: visible !important;
@@ -448,10 +457,19 @@
           border: 2px solid #2e7d32 !important;
           border-collapse: collapse !important;
           margin-top: 20px !important;
+          page-break-inside: auto;
+        }
+        .tabela-votos tr {
+          page-break-inside: avoid;
+          page-break-after: auto;
         }
         .tabela-votos th,
         .tabela-votos td {
           border: 1px solid #c8e6c9 !important;
+          padding: 8px !important;
+        }
+        .tabela-votos thead {
+          display: table-header-group;
         }
       }
     </style>
@@ -555,7 +573,7 @@
         <input type="text" id="cad-nome" placeholder="Nome do Candidato" />
 
         <label>Turma</label>
-        <input type="text" id="cad-turma" placeholder="(ex: 5º ano A)" />
+        <input type="text" id="cad-turma" placeholder="Turma (ex: 5º ano A)" />
 
         <label>Foto do Candidato</label>
         <input type="file" id="cad-foto-file" accept="image/*" />
@@ -791,7 +809,7 @@
 
           let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
           html +=
-            '<table class="tabela-votos"><tr><th>Candidato / Aluno</th><th>Votos</th></tr>';
+            '<table class="tabela-votos"><thead><tr><th>Candidato / Aluno</th><th>Votos</th></tr></thead><tbody>';
 
           candidatosOrdenados.forEach((c) => {
             const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
@@ -803,7 +821,7 @@
 
           html += `<tr><td>Votos em BRANCO</td><td>${contagem["BRANCO"]}</td></tr>`;
           html += `<tr><td>Votos NULOS</td><td>${contagem["NULO"]}</td></tr>`;
-          html += "</table>";
+          html += "</tbody></table>";
 
           document.getElementById("resultado-votos").innerHTML = html;
           document.getElementById("painel-apuracao").style.display = "block";
