@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Urna Eletrônica Escolar - Edição Especial</title>
+    <title>Urna Eletrônica Escolar - EMEB O SEMEADOR</title>
     <style>
       :root {
         --bg-color: #2e7d32; /* Verde Escuro */
@@ -461,8 +461,10 @@
             CONFIRMA para CONFIRMAR este voto<br />
             CORRIGE para REINICIAR este voto
           </div>
-
-          <img src="img/rodape-logo.png" class="rodape-logo" />
+          <div style="align-items: center; justify-content: center; gap: 10px">
+            <img src="img/rodape-logo.png" class="rodape-logo" />
+            <div>EMEB O SEMEADOR</div>
+          </div>
         </div>
       </div>
 
@@ -503,7 +505,21 @@
     </div>
 
     <div id="painel-apuracao">
-      <h2>Relatório de Apuração</h2>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        "
+      >
+        <div style="text-align: center">
+          <h2 style="margin: 0">Relatório de Apuração</h2>
+          <div style="color: #2e7d32">EMEB O SEMEADOR</div>
+        </div>
+
+        <img src="img/rodape-logo.png" class="rodape-logo" />
+      </div>
       <div id="resultado-votos"></div>
       <div style="text-align: center; margin-top: 20px">
         <button class="btn-imprimir" onclick="imprimirResultado()">
