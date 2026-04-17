@@ -557,14 +557,6 @@
         <label>Turma</label>
         <input type="text" id="cad-turma" placeholder="(ex: 5º ano A)" />
 
-        <label>Período</label>
-        <select id="cad-periodo">
-          <option value="">Selecione o Período</option>
-          <option value="Manhã">Manhã</option>
-          <option value="Tarde">Tarde</option>
-          <option value="Integral">Integral</option>
-        </select>
-
         <label>Foto do Candidato</label>
         <input type="file" id="cad-foto-file" accept="image/*" />
         <div
@@ -703,7 +695,7 @@
             elFoto.style.display = "block";
             elRodape.style.display = "flex";
             elNome.innerHTML = `NOME: ${candidato.nome}`;
-            elTurma.innerHTML = `TURMA: ${candidato.turma} (${candidato.periodo || ""})`;
+            elTurma.innerHTML = `TURMA: ${candidato.turma}`;
             elFoto.style.backgroundImage = `url(${candidato.foto})`;
           } else {
             elNome.style.display = "block";
@@ -895,9 +887,8 @@
         const numero = document.getElementById("cad-numero").value;
         const nome = document.getElementById("cad-nome").value;
         const turma = document.getElementById("cad-turma").value;
-        const periodo = document.getElementById("cad-periodo").value;
 
-        if (!numero || !nome || !turma || !periodo) {
+        if (!numero || !nome || !turma) {
           alert("Preencha todos os campos obrigatórios!");
           return;
         }
@@ -910,7 +901,7 @@
           fotoFinal = "img/default.png";
         }
 
-        const novoCandidato = { numero, nome, turma, periodo, foto: fotoFinal };
+        const novoCandidato = { numero, nome, turma, foto: fotoFinal };
 
         set(ref(database, "candidatos/" + numero), novoCandidato)
           .then(() => {
@@ -925,7 +916,6 @@
         document.getElementById("cad-numero").value = "";
         document.getElementById("cad-nome").value = "";
         document.getElementById("cad-turma").value = "";
-        document.getElementById("cad-periodo").value = "";
         document.getElementById("cad-foto-file").value = "";
         document.getElementById("cad-foto-preview").style.display = "none";
         fotoBase64 = "";
@@ -946,7 +936,6 @@
           document.getElementById("cad-numero").value = c.numero;
           document.getElementById("cad-nome").value = c.nome;
           document.getElementById("cad-turma").value = c.turma;
-          document.getElementById("cad-periodo").value = c.periodo;
 
           const preview = document.getElementById("cad-foto-preview");
           preview.style.backgroundImage = `url(${c.foto})`;
