@@ -355,6 +355,93 @@
           top: -90px;
         }
       }
+
+      /* Estilos para Impressão */
+      @media print {
+        /* Oculta tudo que não for o painel de apuração */
+        body {
+          background-color: white !important;
+          margin: 0;
+          padding: 0;
+        }
+        body > *:not(#painel-apuracao) {
+          display: none !important;
+        }
+        #painel-apuracao {
+          display: block !important;
+          position: static !important;
+          transform: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-shadow: none !important;
+          border: none !important;
+          margin: 0 !important;
+          padding: 20px !important;
+          visibility: visible !important;
+          background: white !important;
+        }
+        #painel-apuracao * {
+          visibility: visible !important;
+        }
+        /* Remove botões da impressão */
+        .btn-imprimir,
+        .btn-fechar-apuracao,
+        .controles-admin,
+        .btn-admin {
+          display: none !important;
+        }
+        /* Melhora a tabela na impressão */
+        .tabela-votos {
+          width: 100% !important;
+          border: 2px solid #2e7d32 !important;
+          border-collapse: collapse !important;
+          margin-top: 20px !important;
+        }
+        .tabela-votos th,
+        .tabela-votos td {
+          border: 1px solid #c8e6c9 !important;
+          padding: 12px !important;
+          color: black !important;
+        }
+        .tabela-votos th {
+          background-color: #e8f5e9 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        /* Garante que a cor do vencedor apareça */
+        .vencedor {
+          background-color: #fff9c4 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+          font-weight: bold !important;
+        }
+        h2 {
+          color: #1b5e20 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+
+      .btn-imprimir {
+        padding: 10px 20px;
+        background-color: #1b5e20;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .btn-fechar-apuracao {
+        padding: 10px 20px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
@@ -419,10 +506,10 @@
       <h2>Relatório de Apuração</h2>
       <div id="resultado-votos"></div>
       <div style="text-align: center; margin-top: 20px">
-        <button
-          onclick="fecharApuracao()"
-          style="padding: 10px 20px; cursor: pointer"
-        >
+        <button class="btn-imprimir" onclick="imprimirResultado()">
+          Imprimir Resultado
+        </button>
+        <button class="btn-fechar-apuracao" onclick="fecharApuracao()">
           Fechar
         </button>
       </div>
@@ -607,22 +694,28 @@
           else contagem["NULO"]++;
         });
 
-        let maxVotos = -1;
-        let vencedorNumero = "";
-        candidatos.forEach((c) => {
-          if (contagem[c.numero] > maxVotos) {
-            maxVotos = contagem[c.numero];
-            vencedorNumero = c.numero;
-          } else if (contagem[c.numero] === maxVotos && maxVotos > 0) {
-            vencedorNumero = "EMPATE";
-          }
+        // Ordenar candidatos por número de votos (decrescente)
+        const candidatosOrdenados = [...candidatos].sort((a, b) => {
+          return contagem[b.numero] - contagem[a.numero];
         });
+
+        const maxVotos = contagem[candidatosOrdenados[0].numero];
+        let vencedorNumero = "";
+
+        if (maxVotos > 0) {
+          // Verifica se há empate no primeiro lugar
+          const empate = candidatosOrdenados.filter(
+            (c) => contagem[c.numero] === maxVotos,
+          );
+          vencedorNumero =
+            empate.length === 1 ? candidatosOrdenados[0].numero : "EMPATE";
+        }
 
         let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
         html +=
           '<table class="tabela-votos"><tr><th>Candidato / Aluno</th><th>Votos</th></tr>';
 
-        candidatos.forEach((c) => {
+        candidatosOrdenados.forEach((c) => {
           const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
           html += `<tr class="${isVencedor ? "vencedor" : ""}">
                     <td>${c.numero} - ${c.nome} ${isVencedor ? "🏆" : ""}</td>
@@ -640,6 +733,10 @@
 
       function fecharApuracao() {
         document.getElementById("painel-apuracao").style.display = "none";
+      }
+
+      function imprimirResultado() {
+        window.print();
       }
 
       function limparVotos() {
