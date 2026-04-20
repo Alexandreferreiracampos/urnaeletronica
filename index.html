@@ -1,1002 +1,1061 @@
 <!doctype html>
 <html lang="pt-br">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Urna Eletrônica Escolar - EMEB O SEMEADOR</title>
-  <style>
-    :root {
-      --bg-color: #2e7d32;
-      /* Verde Escuro */
-      --urna-bg: #e8f5e9;
-      /* Verde Bem Clarinho */
-      --panel-bg: #c8e6c9;
-      /* Verde Médio para o Painel */
-      --keyboard-bg: #1b5e20;
-      /* Verde Floresta para o Teclado */
-      --btn-color: #222;
-      --btn-text: #fff;
-      --confirm-btn: #4caf50;
-      --correct-btn: #ff9800;
-      --white-btn: #ffffff;
-    }
-
-    body {
-      font-family: "Arial", sans-serif;
-      background-color: var(--bg-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
-
-    .urna {
-      background-color: var(--urna-bg);
-      padding: 30px;
-      display: flex;
-      border: 4px solid #1b5e20;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      border-radius: 15px;
-      max-width: 95vw;
-      max-height: 90vh;
-      position: relative;
-    }
-
-    /* Ícone da Escola na Lateral da Urna */
-    .urna::after {
-      content: "";
-      position: absolute;
-      top: 20px;
-      right: -100px;
-      width: 80px;
-      height: 80px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      z-index: 5;
-    }
-
-    /* Tela da Urna */
-    .tela {
-      width: 500px;
-      height: 350px;
-      background: linear-gradient(to bottom right, #f1f8e9, #c8e6c9);
-      border: 2px solid #2e7d32;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Brasão Embutido no Fundo com Opacidade */
-    .tela--brasao {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 250px;
-      height: 250px;
-      background-image: url("img/brasao.png");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      opacity: 0.15;
-      /* Opacidade ajustada para o fundo */
-      z-index: 1;
-    }
-
-    .tela--info {
-      flex: 1;
-      z-index: 2;
-    }
-
-    .tela--cargo {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #1b5e20;
-    }
-
-    .tela--numero {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .numero-box {
-      width: 40px;
-      height: 55px;
-      border: 1px solid #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 30px;
-      margin-right: 5px;
-      background-color: #fff;
-    }
-
-    .numero-box.pisca {
-      animation: flash 1s infinite;
-    }
-
-    @keyframes flash {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .tela--nome,
-    .tela--turma {
-      font-size: 18px;
-      margin-top: 10px;
-      height: auto;
-      min-height: 25px;
-      width: 65%;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 2px 8px;
-      border-radius: 5px;
-      color: #1b5e20;
-      font-weight: bold;
-    }
-
-    .tela--foto {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 120px;
-      height: 150px;
-      border: 2px solid #2e7d32;
-      background-size: cover;
-      background-position: center;
-      background-color: #fff;
-      display: none;
-    }
-
-    .tela--rodape {
-      margin-top: auto;
-      border-top: 2px solid #2e7d32;
-      padding-top: 10px;
-      font-size: 14px;
-      color: #1b5e20;
-
-      display: flex;
-      /* DEIXA FIXO FLEX */
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .rodape-texto {
-      flex: 1;
-    }
-
-    .rodape-logo {
-      width: 60px;
-      height: auto;
-      margin-left: 10px;
-      border-radius: 10px;
-    }
-
-    /* Teclado da Urna */
-    .teclado {
-      background-color: var(--keyboard-bg);
-      padding: 20px;
-      margin-left: 30px;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .teclado--linha {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 15px;
-    }
-
-    .teclado--botao {
-      width: 70px;
-      height: 50px;
-      background-color: var(--btn-color);
-      color: var(--btn-text);
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 10px;
-      cursor: pointer;
-      border-radius: 5px;
-      box-shadow: 0 4px #000;
-      user-select: none;
-    }
-
-    .teclado--botao:active {
-      box-shadow: none;
-      transform: translateY(4px);
-    }
-
-    .teclado--botao.especial {
-      font-size: 12px;
-      font-weight: bold;
-      color: #000;
-      height: 60px;
-      width: 90px;
-    }
-
-    .btn-branco {
-      background-color: var(--white-btn);
-    }
-
-    .btn-corrige {
-      background-color: var(--correct-btn);
-    }
-
-    .btn-confirma {
-      background-color: var(--confirm-btn);
-      height: 75px;
-      align-self: flex-end;
-    }
-
-    /* Estilo para FIM */
-    .tela--fim {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 90px;
-      height: 100%;
-      width: 100%;
-      font-weight: bold;
-      z-index: 10;
-      background: #f1f8e9;
-      color: #1b5e20;
-    }
-
-    /* Painel de Apuração e Cadastro */
-    #painel-apuracao,
-    #painel-cadastro {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 100px rgba(0, 0, 0, 0.7);
-      z-index: 100;
-      width: 90%;
-      max-width: 650px;
-      max-height: 85vh;
-      overflow-y: auto;
-      border: 5px solid #2e7d32;
-    }
-
-    #painel-apuracao h2,
-    #painel-cadastro h2 {
-      margin-top: 0;
-      text-align: center;
-      color: #1b5e20;
-      border-bottom: 2px solid #c8e6c9;
-      padding-bottom: 10px;
-    }
-
-    .tabela-votos,
-    .tabela-candidatos {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    .tabela-votos th,
-    .tabela-votos td,
-    .tabela-candidatos th,
-    .tabela-candidatos td {
-      border: 1px solid #c8e6c9;
-      padding: 12px;
-      text-align: left;
-    }
-
-    .tabela-votos th,
-    .tabela-candidatos th {
-      background-color: #e8f5e9;
-      color: #1b5e20;
-    }
-
-    .vencedor {
-      background-color: #fff9c4;
-      font-weight: bold;
-    }
-
-    .controles-admin {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn-admin {
-      padding: 8px 15px;
-      background: #1b5e20;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      opacity: 0.5;
-    }
-
-    .btn-admin:hover {
-      opacity: 1;
-    }
-
-    /* Estilos do Formulário de Cadastro */
-    .form-cadastro {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f1f8e9;
-      border-radius: 10px;
-    }
-
-    .form-cadastro label {
-      font-size: 12px;
-      font-weight: bold;
-      color: #1b5e20;
-      margin-bottom: -5px;
-    }
-
-    .form-cadastro input,
-    .form-cadastro select {
-      padding: 8px;
-      border: 1px solid #c8e6c9;
-      border-radius: 5px;
-    }
-
-    .btn-salvar {
-      background: #2e7d32;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-excluir {
-      background: #d32f2f;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    .preview-foto {
-      width: 60px;
-      height: 75px;
-      border: 1px solid #ccc;
-      background-size: cover;
-      background-position: center;
-      margin-top: 5px;
-    }
-
-    @media (max-width: 800px) {
-      .urna {
-        flex-direction: column;
-        padding: 15px;
-        align-items: center;
-      }
-
-      .tela {
-        width: 90vw;
-        height: 250px;
-      }
-
-      .teclado {
-        margin-left: 0;
-        margin-top: 20px;
-        padding: 10px;
-      }
-
-      .teclado--botao {
-        width: 50px;
-        height: 40px;
-        margin: 0 5px;
-      }
-
-      .teclado--botao.especial {
-        width: 75px;
-        height: 50px;
-      }
-
-      .urna::after {
-        right: 10px;
-        top: -90px;
-      }
-    }
-
-    /* Estilos para Impressão */
-    @media print {
-      @page {
-        margin: 1cm;
-        size: auto;
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Urna Eletrônica Escolar - EMEB O SEMEADOR</title>
+    <style>
+      :root {
+        --bg-color: #2e7d32;
+        /* Verde Escuro */
+        --urna-bg: #e8f5e9;
+        /* Verde Bem Clarinho */
+        --panel-bg: #c8e6c9;
+        /* Verde Médio para o Painel */
+        --keyboard-bg: #1b5e20;
+        /* Verde Floresta para o Teclado */
+        --btn-color: #222;
+        --btn-text: #fff;
+        --confirm-btn: #4caf50;
+        --correct-btn: #ff9800;
+        --white-btn: #ffffff;
       }
 
       body {
-        background-color: white !important;
+        font-family: "Arial", sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
         margin: 0;
-        padding: 0;
-        height: auto !important;
-        overflow: visible !important;
-        display: block !important;
+        overflow: hidden;
+        touch-action: manipulation;
+        overflow: auto;
       }
 
-      body>*:not(#painel-apuracao) {
-        display: none !important;
+      .urna {
+        background-color: var(--urna-bg);
+        padding: 40px;
+        display: flex;
+        border: 4px solid #1b5e20;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border-radius: 15px;
+        max-width: 95vw;
+        max-height: 90vh;
+        position: relative;
       }
 
-      #painel-apuracao {
-        display: block !important;
-        position: static !important;
-        transform: none !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        visibility: visible !important;
-        background: white !important;
-        overflow: visible !important;
-        max-height: none !important;
+      /* Ícone da Escola na Lateral da Urna */
+      .urna::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        right: -100px;
+        width: 80px;
+        height: 80px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 5;
       }
 
-      #painel-apuracao * {
-        visibility: visible !important;
+      .urna {
+        transform: scale(1.3);
       }
 
-      .btn-imprimir,
-      .btn-fechar-apuracao,
-      .controles-admin,
-      .btn-admin {
-        display: none !important;
+      /* Tela da Urna */
+      .tela {
+        width: 500px;
+        height: 350px;
+        background: linear-gradient(to bottom right, #f1f8e9, #c8e6c9);
+        border: 2px solid #2e7d32;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
       }
 
-      .tabela-votos {
-        width: 100% !important;
-        border: 2px solid #2e7d32 !important;
-        border-collapse: collapse !important;
-        margin-top: 20px !important;
-        page-break-inside: auto;
+      /* Brasão Embutido no Fundo com Opacidade */
+      .tela--brasao {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 250px;
+        background-image: url("img/brasao.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.15;
+        /* Opacidade ajustada para o fundo */
+        z-index: 1;
       }
 
-      .tabela-votos tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
+      .tela--info {
+        flex: 1;
+        z-index: 2;
+      }
+
+      .tela--cargo {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #1b5e20;
+      }
+
+      .tela--numero {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .numero-box {
+        width: 40px;
+        height: 55px;
+        border: 1px solid #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+        margin-right: 5px;
+        background-color: #fff;
+      }
+
+      .numero-box.pisca {
+        animation: flash 1s infinite;
+      }
+
+      @keyframes flash {
+        0% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0;
+        }
+
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .tela--nome,
+      .tela--turma {
+        font-size: 18px;
+        margin-top: 10px;
+        height: auto;
+        min-height: 25px;
+        width: 65%;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 2px 8px;
+        border-radius: 5px;
+        color: #1b5e20;
+        font-weight: bold;
+      }
+
+      .tela--foto {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 120px;
+        height: 150px;
+        border: 2px solid #2e7d32;
+        background-size: cover;
+        background-position: center;
+        background-color: #fff;
+        display: none;
+      }
+
+      .tela--rodape {
+        margin-top: auto;
+        border-top: 2px solid #2e7d32;
+        padding-top: 10px;
+        font-size: 14px;
+        color: #1b5e20;
+
+        display: flex;
+        /* DEIXA FIXO FLEX */
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .rodape-texto {
+        flex: 1;
+      }
+
+      .rodape-logo {
+        width: 70px;
+        height: auto;
+        margin-left: 10px;
+        border-radius: 10px;
+      }
+
+      /* Teclado da Urna */
+      .teclado {
+        background-color: var(--keyboard-bg);
+        padding: 20px;
+        margin-left: 30px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .teclado--linha {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+
+      .teclado--botao {
+        width: 70px;
+        height: 50px;
+        background-color: var(--btn-color);
+        color: var(--btn-text);
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        box-shadow: 0 4px #000;
+        user-select: none;
+      }
+
+      .teclado--botao:active {
+        box-shadow: none;
+        transform: translateY(4px);
+      }
+
+      .teclado--botao.especial {
+        font-size: 12px;
+        font-weight: bold;
+        color: #000;
+        height: 60px;
+        width: 90px;
+      }
+
+      .btn-branco {
+        background-color: var(--white-btn);
+      }
+
+      .btn-corrige {
+        background-color: var(--correct-btn);
+      }
+
+      .btn-confirma {
+        background-color: var(--confirm-btn);
+        height: 75px;
+        align-self: flex-end;
+      }
+
+      /* Estilo para FIM */
+      .tela--fim {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 90px;
+        height: 100%;
+        width: 100%;
+        font-weight: bold;
+        z-index: 10;
+        background: #f1f8e9;
+        color: #1b5e20;
+      }
+
+      /* Painel de Apuração e Cadastro */
+      #painel-apuracao,
+      #painel-cadastro {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 100px rgba(0, 0, 0, 0.7);
+        z-index: 100;
+        width: 90%;
+        max-width: 650px;
+        max-height: 85vh;
+        overflow-y: auto;
+        border: 5px solid #2e7d32;
+      }
+
+      #painel-apuracao h2,
+      #painel-cadastro h2 {
+        margin-top: 0;
+        text-align: center;
+        color: #1b5e20;
+        border-bottom: 2px solid #c8e6c9;
+        padding-bottom: 10px;
+      }
+
+      .tabela-votos,
+      .tabela-candidatos {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
       }
 
       .tabela-votos th,
-      .tabela-votos td {
-        border: 1px solid #c8e6c9 !important;
-        padding: 8px !important;
+      .tabela-votos td,
+      .tabela-candidatos th,
+      .tabela-candidatos td {
+        border: 1px solid #c8e6c9;
+        padding: 12px;
+        text-align: left;
       }
 
-      .tabela-votos thead {
-        display: table-header-group;
+      .tabela-votos th,
+      .tabela-candidatos th {
+        background-color: #e8f5e9;
+        color: #1b5e20;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div class="urna">
-    <div class="tela">
-      <div class="tela--brasao"></div>
-      <div class="tela--info" id="tela-info">
-        <div class="tela--cargo">REPRESENTANTE DE TURMA</div>
-        <div class="tela--numero" id="numeros">
-          <div class="numero-box pisca"></div>
-          <div class="numero-box"></div>
+      .vencedor {
+        background-color: #fff9c4;
+        font-weight: bold;
+      }
+
+      .controles-admin {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn-admin {
+        padding: 8px 15px;
+        background: #1b5e20;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        opacity: 0.5;
+      }
+
+      .btn-admin:hover {
+        opacity: 1;
+      }
+
+      /* Estilos do Formulário de Cadastro */
+      .form-cadastro {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f1f8e9;
+        border-radius: 10px;
+      }
+
+      .form-cadastro label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #1b5e20;
+        margin-bottom: -5px;
+      }
+
+      .form-cadastro input,
+      .form-cadastro select {
+        padding: 8px;
+        border: 1px solid #c8e6c9;
+        border-radius: 5px;
+      }
+
+      .btn-salvar {
+        background: #2e7d32;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-excluir {
+        background: #d32f2f;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .preview-foto {
+        width: 60px;
+        height: 75px;
+        border: 1px solid #ccc;
+        background-size: cover;
+        background-position: center;
+        margin-top: 5px;
+      }
+
+      @media (max-width: 800px) {
+        body {
+          align-items: flex-start;
+          height: auto;
+          padding: 10px;
+        }
+
+        .urna {
+          flex-direction: column;
+          width: 100%;
+          padding: 10px;
+          transform: scale(1); /* evita zoom quebrado */
+        }
+
+        .tela {
+          width: 100%;
+          height: auto;
+          min-height: 250px;
+        }
+
+        .teclado {
+          width: 100%;
+          margin: 10px 0 0 0;
+          padding: 10px;
+        }
+
+        .teclado--botao {
+          width: 100%;
+          height: 50px;
+          margin: 5px;
+          font-size: 18px;
+        }
+
+        .teclado--linha {
+          justify-content: space-between;
+        }
+      }
+
+      @media (max-width: 800px) {
+        .urna {
+          flex-direction: column;
+          padding: 15px;
+          align-items: center;
+        }
+
+        .tela {
+          width: 90vw;
+          height: 250px;
+        }
+
+        .teclado {
+          margin-left: 0;
+          margin-top: 20px;
+          padding: 10px;
+        }
+
+        .teclado--botao {
+          width: 50px;
+          height: 40px;
+          margin: 0 5px;
+        }
+
+        .teclado--botao.especial {
+          width: 75px;
+          height: 50px;
+        }
+
+        .urna::after {
+          right: 10px;
+          top: -90px;
+        }
+      }
+
+      /* Estilos para Impressão */
+      @media print {
+        @page {
+          margin: 1cm;
+          size: auto;
+        }
+
+        body {
+          background-color: white !important;
+          margin: 0;
+          padding: 0;
+          height: auto !important;
+          overflow: visible !important;
+          display: block !important;
+        }
+
+        body > *:not(#painel-apuracao) {
+          display: none !important;
+        }
+
+        #painel-apuracao {
+          display: block !important;
+          position: static !important;
+          transform: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-shadow: none !important;
+          border: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          visibility: visible !important;
+          background: white !important;
+          overflow: visible !important;
+          max-height: none !important;
+        }
+
+        #painel-apuracao * {
+          visibility: visible !important;
+        }
+
+        .btn-imprimir,
+        .btn-fechar-apuracao,
+        .controles-admin,
+        .btn-admin {
+          display: none !important;
+        }
+
+        .tabela-votos {
+          width: 100% !important;
+          border: 2px solid #2e7d32 !important;
+          border-collapse: collapse !important;
+          margin-top: 20px !important;
+          page-break-inside: auto;
+        }
+
+        .tabela-votos tr {
+          page-break-inside: avoid;
+          page-break-after: auto;
+        }
+
+        .tabela-votos th,
+        .tabela-votos td {
+          border: 1px solid #c8e6c9 !important;
+          padding: 8px !important;
+        }
+
+        .tabela-votos thead {
+          display: table-header-group;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="urna">
+      <div class="tela">
+        <div class="tela--brasao"></div>
+        <div class="tela--info" id="tela-info">
+          <div class="tela--cargo">REPRESENTANTE DE TURMA</div>
+          <div class="tela--numero" id="numeros">
+            <div class="numero-box pisca"></div>
+            <div class="numero-box"></div>
+          </div>
+          <div class="tela--nome" id="nome">NOME:</div>
+          <div class="tela--turma" id="turma">TURMA:</div>
         </div>
-        <div class="tela--nome" id="nome">NOME:</div>
-        <div class="tela--turma" id="turma">TURMA:</div>
+        <div class="tela--foto" id="foto"></div>
+        <div class="tela--rodape" id="rodape">
+          <div class="rodape-texto">
+            <h2>EMEB O SEMEADOR</h2>
+            Aperte a tecla:<br />
+            CONFIRMA para CONFIRMAR este voto<br />
+            CORRIGE para REINICIAR este voto
+          </div>
+          <img src="img/rodape-logo.png" class="rodape-logo" />
+        </div>
       </div>
-      <div class="tela--foto" id="foto"></div>
-      <div class="tela--rodape" id="rodape">
-        <div class="rodape-texto">
-          Aperte a tecla:<br />
-          CONFIRMA para CONFIRMAR este voto<br />
-          CORRIGE para REINICIAR este voto
+
+      <div class="teclado">
+        <div class="teclado--linha">
+          <div class="teclado--botao" id="btn-1">1</div>
+          <div class="teclado--botao" id="btn-2">2</div>
+          <div class="teclado--botao" id="btn-3">3</div>
         </div>
-        <img src="img/rodape-logo.png" class="rodape-logo" />
+        <div class="teclado--linha">
+          <div class="teclado--botao" id="btn-4">4</div>
+          <div class="teclado--botao" id="btn-5">5</div>
+          <div class="teclado--botao" id="btn-6">6</div>
+        </div>
+        <div class="teclado--linha">
+          <div class="teclado--botao" id="btn-7">7</div>
+          <div class="teclado--botao" id="btn-8">8</div>
+          <div class="teclado--botao" id="btn-9">9</div>
+        </div>
+        <div class="teclado--linha">
+          <div class="teclado--botao" id="btn-0">0</div>
+        </div>
+        <div class="teclado--linha">
+          <div class="teclado--botao especial btn-branco" id="btn-branco">
+            BRANCO
+          </div>
+          <div class="teclado--botao especial btn-corrige" id="btn-corrige">
+            CORRIGE
+          </div>
+          <div class="teclado--botao especial btn-confirma" id="btn-confirma">
+            CONFIRMA
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="teclado">
-      <div class="teclado--linha">
-        <div class="teclado--botao" id="btn-1">1</div>
-        <div class="teclado--botao" id="btn-2">2</div>
-        <div class="teclado--botao" id="btn-3">3</div>
-      </div>
-      <div class="teclado--linha">
-        <div class="teclado--botao" id="btn-4">4</div>
-        <div class="teclado--botao" id="btn-5">5</div>
-        <div class="teclado--botao" id="btn-6">6</div>
-      </div>
-      <div class="teclado--linha">
-        <div class="teclado--botao" id="btn-7">7</div>
-        <div class="teclado--botao" id="btn-8">8</div>
-        <div class="teclado--botao" id="btn-9">9</div>
-      </div>
-      <div class="teclado--linha">
-        <div class="teclado--botao" id="btn-0">0</div>
-      </div>
-      <div class="teclado--linha">
-        <div class="teclado--botao especial btn-branco" id="btn-branco">
-          BRANCO
-        </div>
-        <div class="teclado--botao especial btn-corrige" id="btn-corrige">
-          CORRIGE
-        </div>
-        <div class="teclado--botao especial btn-confirma" id="btn-confirma">
-          CONFIRMA
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="painel-apuracao">
-    <div style="
+    <div id="painel-apuracao">
+      <div
+        style="
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 10px;
-        ">
-      <div style="text-align: center">
-        <h2 style="margin: 0">Relatório de Apuração</h2>
-        <div style="color: #2e7d32">EMEB O SEMEADOR</div>
+        "
+      >
+        <div style="text-align: center">
+          <h2 style="margin: 0">Relatório de Apuração</h2>
+          <div style="color: #2e7d32">EMEB O SEMEADOR</div>
+        </div>
+
+        <img src="img/rodape-logo.png" class="rodape-logo" />
       </div>
-
-      <img src="img/rodape-logo.png" class="rodape-logo" />
+      <div id="resultado-votos"></div>
+      <div style="text-align: center; margin-top: 20px">
+        <button class="btn-imprimir" id="btn-imprimir">
+          Imprimir Resultado
+        </button>
+        <button class="btn-fechar-apuracao" id="btn-fechar-apuracao">
+          Fechar
+        </button>
+      </div>
     </div>
-    <div id="resultado-votos"></div>
-    <div style="text-align: center; margin-top: 20px">
-      <button class="btn-imprimir" id="btn-imprimir">
-        Imprimir Resultado
-      </button>
-      <button class="btn-fechar-apuracao" id="btn-fechar-apuracao">
-        Fechar
-      </button>
+
+    <div id="painel-cadastro">
+      <h2>Cadastro de Candidatos</h2>
+      <div class="form-cadastro">
+        <label>Número do Candidato</label>
+        <input
+          type="text"
+          id="cad-numero"
+          placeholder="Número (2 dígitos)"
+          maxlength="2"
+        />
+
+        <label>Nome Completo</label>
+        <input type="text" id="cad-nome" placeholder="Nome do Candidato" />
+
+        <label>Turma</label>
+        <input type="text" id="cad-turma" placeholder="Turma (ex: 5º ano A)" />
+
+        <label>Foto do Candidato</label>
+        <input type="file" id="cad-foto-file" accept="image/*" />
+        <div
+          id="cad-foto-preview"
+          class="preview-foto"
+          style="display: none"
+        ></div>
+
+        <button class="btn-salvar" id="btn-salvar-candidato">
+          Salvar Candidato
+        </button>
+      </div>
+      <div id="lista-candidatos"></div>
+      <div style="text-align: center; margin-top: 20px">
+        <button class="btn-fechar-apuracao" id="btn-fechar-cadastro">
+          Fechar
+        </button>
+      </div>
     </div>
-  </div>
 
-  <div id="painel-cadastro">
-    <h2>Cadastro de Candidatos</h2>
-    <div class="form-cadastro">
-      <label>Número do Candidato</label>
-      <input type="text" id="cad-numero" placeholder="Número (2 dígitos)" maxlength="2" />
-
-      <label>Nome Completo</label>
-      <input type="text" id="cad-nome" placeholder="Nome do Candidato" />
-
-      <label>Turma</label>
-      <input type="text" id="cad-turma" placeholder="Turma (ex: 5º ano A)" />
-
-      <label>Foto do Candidato</label>
-      <input type="file" id="cad-foto-file" accept="image/*" />
-      <div id="cad-foto-preview" class="preview-foto" style="display: none"></div>
-
-      <button class="btn-salvar" id="btn-salvar-candidato">
-        Salvar Candidato
-      </button>
+    <div class="controles-admin">
+      <button class="btn-admin" id="btn-mostrar-apuracao">Apuração</button>
+      <button class="btn-admin" id="btn-mostrar-cadastro">Candidatos</button>
+      <button class="btn-admin" id="btn-limpar-votos">Zerar Urna</button>
     </div>
-    <div id="lista-candidatos"></div>
-    <div style="text-align: center; margin-top: 20px">
-      <button class="btn-fechar-apuracao" id="btn-fechar-cadastro">
-        Fechar
-      </button>
-    </div>
-  </div>
 
-  <div class="controles-admin">
-    <button class="btn-admin" id="btn-mostrar-apuracao">Apuração</button>
-    <button class="btn-admin" id="btn-mostrar-cadastro">Candidatos</button>
-    <button class="btn-admin" id="btn-limpar-votos">Zerar Urna</button>
-  </div>
+    <audio
+      id="audio-tecla"
+      src="https://www.tse.jus.br/hotsites/simulador-de-votacao/assets/audios/tecla.mp3"
+    ></audio>
+    <audio id="audio-fim" src="confirma-urna.mp3"></audio>
 
-  <audio id="audio-tecla" src="https://www.tse.jus.br/hotsites/simulador-de-votacao/assets/audios/tecla.mp3"></audio>
-  <audio id="audio-fim" src="confirma-urna.mp3"></audio>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        set,
+        push,
+        onValue,
+        remove,
+        get,
+        child,
+      } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
 
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      set,
-      push,
-      onValue,
-      remove,
-      get,
-      child,
-    } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDDkFGZIPBxwY9TqZh9Z7afNlv2HHW5-IA",
+        authDomain: "urna-ed3ce.firebaseapp.com",
+        databaseURL: "https://urna-ed3ce-default-rtdb.firebaseio.com",
+        projectId: "urna-ed3ce",
+        storageBucket: "urna-ed3ce.firebasestorage.app",
+        messagingSenderId: "145878620539",
+        appId: "1:145878620539:web:c4ccf65f0038a91fa245de",
+        measurementId: "G-9GD1X9SDPL",
+      };
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDkFGZIPBxwY9TqZh9Z7afNlv2HHW5-IA",
-      authDomain: "urna-ed3ce.firebaseapp.com",
-      databaseURL: "https://urna-ed3ce-default-rtdb.firebaseio.com",
-      projectId: "urna-ed3ce",
-      storageBucket: "urna-ed3ce.firebasestorage.app",
-      messagingSenderId: "145878620539",
-      appId: "1:145878620539:web:c4ccf65f0038a91fa245de",
-      measurementId: "G-9GD1X9SDPL",
-    };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+      let candidatos = [];
+      let etapaAtiva = true;
+      let numeroDigitado = "";
+      let votoEmBranco = false;
+      let fotoBase64 = "";
 
-    let candidatos = [];
-    let etapaAtiva = true;
-    let numeroDigitado = "";
-    let votoEmBranco = false;
-    let fotoBase64 = "";
+      const elNumeros = document.getElementById("numeros");
+      const elCargo = document.querySelector(".tela--cargo");
+      const elNome = document.getElementById("nome");
+      const elTurma = document.getElementById("turma");
+      const elFoto = document.getElementById("foto");
+      const elRodape = document.getElementById("rodape");
+      const elTelaInfo = document.getElementById("tela-info");
 
-    const elNumeros = document.getElementById("numeros");
-    const elCargo = document.querySelector(".tela--cargo");
-    const elNome = document.getElementById("nome");
-    const elTurma = document.getElementById("turma");
-    const elFoto = document.getElementById("foto");
-    const elRodape = document.getElementById("rodape");
-    const elTelaInfo = document.getElementById("tela-info");
-
-    // Sincronizar Candidatos em Tempo Real
-    onValue(ref(database, "candidatos"), (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        candidatos = Object.values(data);
-      } else {
-        candidatos = [];
-      }
-      atualizarListaCandidatos();
-    });
-
-    function iniciarEtapa() {
-      etapaAtiva = true;
-      numeroDigitado = "";
-      votoEmBranco = false;
-
-      elCargo.innerHTML = "REPRESENTANTE DE TURMA";
-      elNome.style.display = "none";
-      elTurma.style.display = "none";
-      elFoto.style.display = "none";
-      elRodape.style.display = "none";
-
-      let htmlNumeros = "";
-      for (let i = 0; i < 2; i++) {
-        htmlNumeros += `<div class="numero-box ${i === 0 ? "pisca" : ""}"></div>`;
-      }
-      elNumeros.innerHTML = htmlNumeros;
-    }
-
-    function clicou(n) {
-      if (!etapaAtiva || votoEmBranco) return;
-
-      document
-        .getElementById("audio-tecla")
-        .play()
-        .catch((e) => console.log("Áudio bloqueado"));
-
-      if (numeroDigitado.length < 2) {
-        numeroDigitado += n;
-        atualizarInterface();
-      }
-    }
-
-    function atualizarInterface() {
-      const boxes = elNumeros.querySelectorAll(".numero-box");
-      boxes.forEach((box, index) => {
-        box.innerHTML = numeroDigitado[index] || "";
-        box.classList.remove("pisca");
+      // Sincronizar Candidatos em Tempo Real
+      onValue(ref(database, "candidatos"), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          candidatos = Object.values(data);
+        } else {
+          candidatos = [];
+        }
+        atualizarListaCandidatos();
       });
 
-      if (numeroDigitado.length < 2) {
-        boxes[numeroDigitado.length].classList.add("pisca");
-      } else {
-        let candidato = candidatos.find(
-          (item) => item.numero === numeroDigitado,
-        );
-        if (candidato) {
-          elNome.style.display = "block";
-          elTurma.style.display = "block";
-          elFoto.style.display = "block";
-          elRodape.style.display = "flex";
-          elNome.innerHTML = `NOME: ${candidato.nome}`;
-          elTurma.innerHTML = `TURMA: ${candidato.turma}`;
-          elFoto.style.backgroundImage = `url(${candidato.foto})`;
-        } else {
-          elNome.style.display = "block";
-          elNome.innerHTML = "<br/>VOTO NULO";
-          elRodape.style.display = "flex";
-        }
-      }
-    }
+      function iniciarEtapa() {
+        etapaAtiva = true;
+        numeroDigitado = "";
+        votoEmBranco = false;
 
-    function branco() {
-      if (!etapaAtiva) return;
-      numeroDigitado = "";
-      votoEmBranco = true;
-      elNumeros.innerHTML = "";
-      elNome.style.display = "block";
-      elNome.innerHTML = "<br/>VOTO EM BRANCO";
-      elTurma.style.display = "none";
-      elFoto.style.display = "none";
-      elRodape.style.display = "block";
-    }
-
-    function corrige() {
-      if (!etapaAtiva) return;
-      iniciarEtapa();
-    }
-
-    function confirma() {
-      if (!etapaAtiva) return;
-
-      let tipoVoto = "";
-      if (votoEmBranco) {
-        tipoVoto = "BRANCO";
-      } else if (numeroDigitado.length === 2) {
-        let candidato = candidatos.find(
-          (item) => item.numero === numeroDigitado,
-        );
-        tipoVoto = candidato ? numeroDigitado : "NULO";
-      }
-
-      if (tipoVoto !== "") {
-        salvarVoto(tipoVoto);
-        document
-          .getElementById("audio-fim")
-          .play()
-          .catch((e) => console.log("Áudio bloqueado"));
-        elTelaInfo.innerHTML = '<div class="tela--fim">FIM</div>';
+        elCargo.innerHTML = "REPRESENTANTE DE TURMA";
+        elNome.style.display = "none";
+        elTurma.style.display = "none";
         elFoto.style.display = "none";
         elRodape.style.display = "none";
-        etapaAtiva = false;
 
-        setTimeout(() => {
-          location.reload();
-        }, 3000);
+        let htmlNumeros = "";
+        for (let i = 0; i < 2; i++) {
+          htmlNumeros += `<div class="numero-box ${i === 0 ? "pisca" : ""}"></div>`;
+        }
+        elNumeros.innerHTML = htmlNumeros;
       }
-    }
 
-    function salvarVoto(voto) {
-      push(ref(database, "votos"), voto);
-    }
+      function clicou(n) {
+        if (!etapaAtiva || votoEmBranco) return;
 
-    function mostrarApuracao() {
-      get(ref(database, "votos")).then((snapshot) => {
-        const data = snapshot.val();
-        const votos = data ? Object.values(data) : [];
-        const contagem = {};
+        document
+          .getElementById("audio-tecla")
+          .play()
+          .catch((e) => console.log("Áudio bloqueado"));
 
-        candidatos.forEach((c) => (contagem[c.numero] = 0));
-        contagem["BRANCO"] = 0;
-        contagem["NULO"] = 0;
-
-        votos.forEach((v) => {
-          if (contagem[v] !== undefined) contagem[v]++;
-          else contagem["NULO"]++;
-        });
-
-        const candidatosOrdenados = [...candidatos].sort((a, b) => {
-          return (contagem[b.numero] || 0) - (contagem[a.numero] || 0);
-        });
-
-        let maxVotos = 0;
-        if (candidatosOrdenados.length > 0) {
-          maxVotos = contagem[candidatosOrdenados[0].numero] || 0;
+        if (numeroDigitado.length < 2) {
+          numeroDigitado += n;
+          atualizarInterface();
         }
+      }
 
-        let vencedorNumero = "";
-        if (maxVotos > 0) {
-          const empate = candidatosOrdenados.filter(
-            (c) => contagem[c.numero] === maxVotos,
+      function atualizarInterface() {
+        const boxes = elNumeros.querySelectorAll(".numero-box");
+        boxes.forEach((box, index) => {
+          box.innerHTML = numeroDigitado[index] || "";
+          box.classList.remove("pisca");
+        });
+
+        if (numeroDigitado.length < 2) {
+          boxes[numeroDigitado.length].classList.add("pisca");
+        } else {
+          let candidato = candidatos.find(
+            (item) => item.numero === numeroDigitado,
           );
-          vencedorNumero =
-            empate.length === 1 ? candidatosOrdenados[0].numero : "EMPATE";
+          if (candidato) {
+            elNome.style.display = "block";
+            elTurma.style.display = "block";
+            elFoto.style.display = "block";
+            elRodape.style.display = "flex";
+            elNome.innerHTML = `NOME: ${candidato.nome}`;
+            elTurma.innerHTML = `TURMA: ${candidato.turma}`;
+            elFoto.style.backgroundImage = `url(${candidato.foto})`;
+          } else {
+            elNome.style.display = "block";
+            elNome.innerHTML = "<br/>VOTO NULO";
+            elRodape.style.display = "flex";
+          }
+        }
+      }
+
+      function branco() {
+        if (!etapaAtiva) return;
+        numeroDigitado = "";
+        votoEmBranco = true;
+        elNumeros.innerHTML = "";
+        elNome.style.display = "block";
+        elNome.innerHTML = "<br/>VOTO EM BRANCO";
+        elTurma.style.display = "none";
+        elFoto.style.display = "none";
+        elRodape.style.display = "block";
+      }
+
+      function corrige() {
+        if (!etapaAtiva) return;
+        iniciarEtapa();
+      }
+
+      function confirma() {
+        if (!etapaAtiva) return;
+
+        let tipoVoto = "";
+        if (votoEmBranco) {
+          tipoVoto = "BRANCO";
+        } else if (numeroDigitado.length === 2) {
+          let candidato = candidatos.find(
+            (item) => item.numero === numeroDigitado,
+          );
+          tipoVoto = candidato ? numeroDigitado : "NULO";
         }
 
-        let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
-        html +=
-          '<table class="tabela-votos"><thead><tr><th>Candidato / Aluno</th><th>Votos</th></tr></thead><tbody>';
+        if (tipoVoto !== "") {
+          salvarVoto(tipoVoto);
+          document
+            .getElementById("audio-fim")
+            .play()
+            .catch((e) => console.log("Áudio bloqueado"));
+          elTelaInfo.innerHTML = '<div class="tela--fim">FIM</div>';
+          elFoto.style.display = "none";
+          elRodape.style.display = "none";
+          etapaAtiva = false;
 
-        candidatosOrdenados.forEach((c) => {
-          const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
-          html += `<tr class="${isVencedor ? "vencedor" : ""}">
+          setTimeout(() => {
+            location.reload();
+          }, 3000);
+        }
+      }
+
+      function salvarVoto(voto) {
+        push(ref(database, "votos"), voto);
+      }
+
+      function mostrarApuracao() {
+        get(ref(database, "votos")).then((snapshot) => {
+          const data = snapshot.val();
+          const votos = data ? Object.values(data) : [];
+          const contagem = {};
+
+          candidatos.forEach((c) => (contagem[c.numero] = 0));
+          contagem["BRANCO"] = 0;
+          contagem["NULO"] = 0;
+
+          votos.forEach((v) => {
+            if (contagem[v] !== undefined) contagem[v]++;
+            else contagem["NULO"]++;
+          });
+
+          const candidatosOrdenados = [...candidatos].sort((a, b) => {
+            return (contagem[b.numero] || 0) - (contagem[a.numero] || 0);
+          });
+
+          let maxVotos = 0;
+          if (candidatosOrdenados.length > 0) {
+            maxVotos = contagem[candidatosOrdenados[0].numero] || 0;
+          }
+
+          let vencedorNumero = "";
+          if (maxVotos > 0) {
+            const empate = candidatosOrdenados.filter(
+              (c) => contagem[c.numero] === maxVotos,
+            );
+            vencedorNumero =
+              empate.length === 1 ? candidatosOrdenados[0].numero : "EMPATE";
+          }
+
+          let html = `<p style="text-align:center; font-size:1.2em;">Total de Votos Computados: <strong>${votos.length}</strong></p>`;
+          html +=
+            '<table class="tabela-votos"><thead><tr><th>Candidato / Aluno</th><th>Votos</th></tr></thead><tbody>';
+
+          candidatosOrdenados.forEach((c) => {
+            const isVencedor = c.numero === vencedorNumero && maxVotos > 0;
+            html += `<tr class="${isVencedor ? "vencedor" : ""}">
                       <td>${c.numero} - ${c.nome} (${c.turma}) ${isVencedor ? "🏆" : ""}</td>
                       <td>${contagem[c.numero] || 0}</td>
                   </tr>`;
-        });
+          });
 
-        html += `<tr><td>Votos em BRANCO</td><td>${contagem["BRANCO"]}</td></tr>`;
-        html += `<tr><td>Votos NULOS</td><td>${contagem["NULO"]}</td></tr>`;
-        html += "</tbody></table>";
+          html += `<tr><td>Votos em BRANCO</td><td>${contagem["BRANCO"]}</td></tr>`;
+          html += `<tr><td>Votos NULOS</td><td>${contagem["NULO"]}</td></tr>`;
+          html += "</tbody></table>";
 
-        document.getElementById("resultado-votos").innerHTML = html;
-        document.getElementById("painel-apuracao").style.display = "block";
-      });
-    }
-
-    function fecharApuracao() {
-      document.getElementById("painel-apuracao").style.display = "none";
-    }
-
-    function imprimirResultado() {
-      window.print();
-    }
-
-    function limparVotos() {
-      const senha = prompt("Digite a senha para zerar a urna:");
-      const senhaCorreta = "emeb";
-
-      if (senha === null) return;
-      if (senha !== senhaCorreta) {
-        alert("Senha incorreta!");
-        return;
-      }
-
-      if (
-        confirm(
-          "ATENÇÃO: Deseja realmente APAGAR TODOS os votos do Firebase?",
-        )
-      ) {
-        remove(ref(database, "votos")).then(() => {
-          alert("Urna zerada com sucesso!");
-          location.reload();
+          document.getElementById("resultado-votos").innerHTML = html;
+          document.getElementById("painel-apuracao").style.display = "block";
         });
       }
-    }
 
-    function VerVotos() {
-      const senha = prompt("Digite a senha para ver a apuração:");
-      const senhaCorreta = "emeb";
-
-      if (senha === null) return;
-      if (senha !== senhaCorreta) {
-        alert("Senha incorreta!");
-        return;
+      function fecharApuracao() {
+        document.getElementById("painel-apuracao").style.display = "none";
       }
 
-      mostrarApuracao();
-      
-    }
-
-    function mostrarCadastro() {
-      const senha = prompt("Digite a senha para acessar o cadastro:");
-      if (senha !== "emeb") {
-        if (senha !== null) alert("Senha incorreta!");
-        return;
-      }
-      sugerirProximoNumero();
-      document.getElementById("painel-cadastro").style.display = "block";
-    }
-
-    function fecharCadastro() {
-      document.getElementById("painel-cadastro").style.display = "none";
-    }
-
-    function sugerirProximoNumero() {
-      if (candidatos.length === 0) {
-        document.getElementById("cad-numero").value = "10";
-        return;
-      }
-      const numeros = candidatos
-        .map((c) => parseInt(c.numero))
-        .filter((n) => !isNaN(n));
-      const maior = Math.max(...numeros);
-      const proximo = maior + 1;
-      document.getElementById("cad-numero").value = proximo
-        .toString()
-        .padStart(2, "0");
-    }
-
-    function previewImage(event) {
-      const input = event.target;
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          fotoBase64 = e.target.result;
-          const preview = document.getElementById("cad-foto-preview");
-          preview.style.backgroundImage = `url(${fotoBase64})`;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-
-    function salvarCandidato() {
-      const numero = document.getElementById("cad-numero").value;
-      const nome = document.getElementById("cad-nome").value;
-      const turma = document.getElementById("cad-turma").value;
-
-      if (!numero || !nome || !turma) {
-        alert("Preencha todos os campos obrigatórios!");
-        return;
+      function imprimirResultado() {
+        window.print();
       }
 
-      const index = candidatos.findIndex((c) => c.numero === numero);
-      let fotoFinal = fotoBase64;
-      if (!fotoFinal && index >= 0) {
-        fotoFinal = candidatos[index].foto;
-      } else if (!fotoFinal) {
-        fotoFinal = "img/default.png";
+      function limparVotos() {
+        const senha = prompt("Digite a senha para zerar a urna:");
+        const senhaCorreta = "emeb";
+
+        if (senha === null) return;
+        if (senha !== senhaCorreta) {
+          alert("Senha incorreta!");
+          return;
+        }
+
+        if (
+          confirm(
+            "ATENÇÃO: Deseja realmente APAGAR TODOS os votos do Firebase?",
+          )
+        ) {
+          remove(ref(database, "votos")).then(() => {
+            alert("Urna zerada com sucesso!");
+            location.reload();
+          });
+        }
       }
 
-      const novoCandidato = { numero, nome, turma, foto: fotoFinal };
+      function VerVotos() {
+        const senha = prompt("Digite a senha para ver a apuração:");
+        const senhaCorreta = "emeb";
 
-      set(ref(database, "candidatos/" + numero), novoCandidato)
-        .then(() => {
-          alert("Candidato salvo com sucesso!");
-          limparFormulario();
-          sugerirProximoNumero();
-        })
-        .catch((error) => alert("Erro ao salvar: " + error.message));
-    }
+        if (senha === null) return;
+        if (senha !== senhaCorreta) {
+          alert("Senha incorreta!");
+          return;
+        }
 
-    function limparFormulario() {
-      document.getElementById("cad-numero").value = "";
-      document.getElementById("cad-nome").value = "";
-      document.getElementById("cad-turma").value = "";
-      document.getElementById("cad-foto-file").value = "";
-      document.getElementById("cad-foto-preview").style.display = "none";
-      fotoBase64 = "";
-    }
-
-    function excluirCandidato(numero) {
-      if (confirm(`Deseja realmente excluir o candidato número ${numero}?`)) {
-        remove(ref(database, "candidatos/" + numero)).then(() => {
-          alert("Candidato excluído!");
-          sugerirProximoNumero();
-        });
+        mostrarApuracao();
       }
-    }
 
-    function editarCandidato(numero) {
-      const c = candidatos.find((cand) => cand.numero === numero);
-      if (c) {
-        document.getElementById("cad-numero").value = c.numero;
-        document.getElementById("cad-nome").value = c.nome;
-        document.getElementById("cad-turma").value = c.turma;
+      function mostrarCadastro() {
+        const senha = prompt("Digite a senha para acessar o cadastro:");
+        if (senha !== "emeb") {
+          if (senha !== null) alert("Senha incorreta!");
+          return;
+        }
+        sugerirProximoNumero();
+        document.getElementById("painel-cadastro").style.display = "block";
+      }
 
-        const preview = document.getElementById("cad-foto-preview");
-        preview.style.backgroundImage = `url(${c.foto})`;
-        preview.style.display = "block";
+      function fecharCadastro() {
+        document.getElementById("painel-cadastro").style.display = "none";
+      }
+
+      function sugerirProximoNumero() {
+        if (candidatos.length === 0) {
+          document.getElementById("cad-numero").value = "10";
+          return;
+        }
+        const numeros = candidatos
+          .map((c) => parseInt(c.numero))
+          .filter((n) => !isNaN(n));
+        const maior = Math.max(...numeros);
+        const proximo = maior + 1;
+        document.getElementById("cad-numero").value = proximo
+          .toString()
+          .padStart(2, "0");
+      }
+
+      function previewImage(event) {
+        const input = event.target;
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            fotoBase64 = e.target.result;
+            const preview = document.getElementById("cad-foto-preview");
+            preview.style.backgroundImage = `url(${fotoBase64})`;
+            preview.style.display = "block";
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function salvarCandidato() {
+        const numero = document.getElementById("cad-numero").value;
+        const nome = document.getElementById("cad-nome").value;
+        const turma = document.getElementById("cad-turma").value;
+
+        if (!numero || !nome || !turma) {
+          alert("Preencha todos os campos obrigatórios!");
+          return;
+        }
+
+        const index = candidatos.findIndex((c) => c.numero === numero);
+        let fotoFinal = fotoBase64;
+        if (!fotoFinal && index >= 0) {
+          fotoFinal = candidatos[index].foto;
+        } else if (!fotoFinal) {
+          fotoFinal = "img/default.png";
+        }
+
+        const novoCandidato = { numero, nome, turma, foto: fotoFinal };
+
+        set(ref(database, "candidatos/" + numero), novoCandidato)
+          .then(() => {
+            alert("Candidato salvo com sucesso!");
+            limparFormulario();
+            sugerirProximoNumero();
+          })
+          .catch((error) => alert("Erro ao salvar: " + error.message));
+      }
+
+      function limparFormulario() {
+        document.getElementById("cad-numero").value = "";
+        document.getElementById("cad-nome").value = "";
+        document.getElementById("cad-turma").value = "";
+        document.getElementById("cad-foto-file").value = "";
+        document.getElementById("cad-foto-preview").style.display = "none";
         fotoBase64 = "";
-        document.getElementById("painel-cadastro").scrollTop = 0;
       }
-    }
 
-    function atualizarListaCandidatos() {
-      let html =
-        '<table class="tabela-candidatos"><tr><th>Nº</th><th>Nome</th><th>Turma</th><th>Ações</th></tr>';
-      candidatos.forEach((c) => {
-        html += `<tr>
+      function excluirCandidato(numero) {
+        if (confirm(`Deseja realmente excluir o candidato número ${numero}?`)) {
+          remove(ref(database, "candidatos/" + numero)).then(() => {
+            alert("Candidato excluído!");
+            sugerirProximoNumero();
+          });
+        }
+      }
+
+      function editarCandidato(numero) {
+        const c = candidatos.find((cand) => cand.numero === numero);
+        if (c) {
+          document.getElementById("cad-numero").value = c.numero;
+          document.getElementById("cad-nome").value = c.nome;
+          document.getElementById("cad-turma").value = c.turma;
+
+          const preview = document.getElementById("cad-foto-preview");
+          preview.style.backgroundImage = `url(${c.foto})`;
+          preview.style.display = "block";
+          fotoBase64 = "";
+          document.getElementById("painel-cadastro").scrollTop = 0;
+        }
+      }
+
+      function atualizarListaCandidatos() {
+        let html =
+          '<table class="tabela-candidatos"><tr><th>Nº</th><th>Nome</th><th>Turma</th><th>Ações</th></tr>';
+        candidatos.forEach((c) => {
+          html += `<tr>
             <td>${c.numero}</td>
             <td>${c.nome}</td>
             <td>${c.turma}</td>
@@ -1005,51 +1064,50 @@
               <button class="btn-excluir-candidato" style="background:#d32f2f; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;" data-numero="${c.numero}">Excluir</button>
             </td>
           </tr>`;
-      });
-      html += "</table>";
-      document.getElementById("lista-candidatos").innerHTML = html;
+        });
+        html += "</table>";
+        document.getElementById("lista-candidatos").innerHTML = html;
 
-      // Adicionar eventos aos botões da lista
-      document.querySelectorAll(".btn-editar-candidato").forEach((btn) => {
-        btn.onclick = () => editarCandidato(btn.getAttribute("data-numero"));
-      });
-      document.querySelectorAll(".btn-excluir-candidato").forEach((btn) => {
-        btn.onclick = () => excluirCandidato(btn.getAttribute("data-numero"));
-      });
-    }
+        // Adicionar eventos aos botões da lista
+        document.querySelectorAll(".btn-editar-candidato").forEach((btn) => {
+          btn.onclick = () => editarCandidato(btn.getAttribute("data-numero"));
+        });
+        document.querySelectorAll(".btn-excluir-candidato").forEach((btn) => {
+          btn.onclick = () => excluirCandidato(btn.getAttribute("data-numero"));
+        });
+      }
 
-    // Atribuir eventos aos botões fixos
-    document.getElementById("btn-1").onclick = () => clicou("1");
-    document.getElementById("btn-2").onclick = () => clicou("2");
-    document.getElementById("btn-3").onclick = () => clicou("3");
-    document.getElementById("btn-4").onclick = () => clicou("4");
-    document.getElementById("btn-5").onclick = () => clicou("5");
-    document.getElementById("btn-6").onclick = () => clicou("6");
-    document.getElementById("btn-7").onclick = () => clicou("7");
-    document.getElementById("btn-8").onclick = () => clicou("8");
-    document.getElementById("btn-9").onclick = () => clicou("9");
-    document.getElementById("btn-0").onclick = () => clicou("0");
-    document.getElementById("btn-branco").onclick = () => branco();
-    document.getElementById("btn-corrige").onclick = () => corrige();
-    document.getElementById("btn-confirma").onclick = () => confirma();
-    document.getElementById("btn-imprimir").onclick = () =>
-      imprimirResultado();
-    document.getElementById("btn-fechar-apuracao").onclick = () =>
-      fecharApuracao();
-    document.getElementById("btn-fechar-cadastro").onclick = () =>
-      fecharCadastro();
-    document.getElementById("btn-salvar-candidato").onclick = () =>
-      salvarCandidato();
-    document.getElementById("btn-mostrar-apuracao").onclick = () =>
-      VerVotos();
-    document.getElementById("btn-mostrar-cadastro").onclick = () =>
-      mostrarCadastro();
-    document.getElementById("btn-limpar-votos").onclick = () => limparVotos();
-    document.getElementById("cad-foto-file").onchange = (e) =>
-      previewImage(e);
+      // Atribuir eventos aos botões fixos
+      document.getElementById("btn-1").onclick = () => clicou("1");
+      document.getElementById("btn-2").onclick = () => clicou("2");
+      document.getElementById("btn-3").onclick = () => clicou("3");
+      document.getElementById("btn-4").onclick = () => clicou("4");
+      document.getElementById("btn-5").onclick = () => clicou("5");
+      document.getElementById("btn-6").onclick = () => clicou("6");
+      document.getElementById("btn-7").onclick = () => clicou("7");
+      document.getElementById("btn-8").onclick = () => clicou("8");
+      document.getElementById("btn-9").onclick = () => clicou("9");
+      document.getElementById("btn-0").onclick = () => clicou("0");
+      document.getElementById("btn-branco").onclick = () => branco();
+      document.getElementById("btn-corrige").onclick = () => corrige();
+      document.getElementById("btn-confirma").onclick = () => confirma();
+      document.getElementById("btn-imprimir").onclick = () =>
+        imprimirResultado();
+      document.getElementById("btn-fechar-apuracao").onclick = () =>
+        fecharApuracao();
+      document.getElementById("btn-fechar-cadastro").onclick = () =>
+        fecharCadastro();
+      document.getElementById("btn-salvar-candidato").onclick = () =>
+        salvarCandidato();
+      document.getElementById("btn-mostrar-apuracao").onclick = () =>
+        VerVotos();
+      document.getElementById("btn-mostrar-cadastro").onclick = () =>
+        mostrarCadastro();
+      document.getElementById("btn-limpar-votos").onclick = () => limparVotos();
+      document.getElementById("cad-foto-file").onchange = (e) =>
+        previewImage(e);
 
-    iniciarEtapa();
-  </script>
-</body>
-
+      iniciarEtapa();
+    </script>
+  </body>
 </html>
