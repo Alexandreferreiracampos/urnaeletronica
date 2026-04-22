@@ -676,10 +676,7 @@
       <button class="btn-admin" id="btn-limpar-votos">Zerar Urna</button>
     </div>
 
-    <audio
-      id="audio-tecla"
-      src="https://www.tse.jus.br/hotsites/simulador-de-votacao/assets/audios/tecla.mp3"
-    ></audio>
+    <audio id="audio-tecla" src="tecla.mp3"></audio>
     <audio id="audio-fim" src="confirma-urna.mp3"></audio>
 
     <script type="module">
@@ -758,10 +755,10 @@
       function clicou(n) {
         if (!etapaAtiva || votoEmBranco) return;
 
-        document
-          .getElementById("audio-tecla")
-          .play()
-          .catch((e) => console.log("Áudio bloqueado"));
+        const audio = document.getElementById("audio-tecla");
+
+        audio.volume = 0.2; // 20% do volume
+        audio.play().catch((e) => console.log("Áudio bloqueado"));
 
         if (numeroDigitado.length < 2) {
           numeroDigitado += n;
